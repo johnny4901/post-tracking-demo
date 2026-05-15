@@ -1,15 +1,15 @@
 {
-  "name": "post-tracking-demo-real",
+  "name": "post-tracking-demo-api",
   "version": "1.0.0",
-  "description": "Chunghwa Post tracking helper with manual captcha input",
+  "description": "Chunghwa Post domestic tracking demo via EsoafDispatcher, no Playwright or Chromium required.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"
   },
   "dependencies": {
-    "express": "^4.18.3",
-    "playwright": "^1.48.2"
+    "axios": "^1.7.9",
+    "express": "^4.21.2"
   },
   "engines": {
     "node": ">=18"

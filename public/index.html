@@ -6,138 +6,147 @@
   <title>中華郵政包裹查詢測試</title>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: Arial, 'Microsoft JhengHei', sans-serif; background: #f4f8f1; color: #173024; }
-    .wrap { max-width: 920px; margin: 28px auto; padding: 0 18px; }
-    .card { background: #fff; border-radius: 18px; padding: 26px; box-shadow: 0 12px 30px rgba(30, 80, 50, .12); }
-    h1 { margin: 0 0 8px; font-size: 28px; color: #24783a; }
-    .sub { color: #60776a; margin-bottom: 22px; line-height: 1.7; }
-    label { display: block; margin: 18px 0 8px; font-weight: 700; }
-    textarea, input { width: 100%; border: 1px solid #c8d8cc; border-radius: 12px; padding: 13px 14px; font-size: 16px; outline: none; }
-    textarea { min-height: 120px; resize: vertical; }
-    input:focus, textarea:focus { border-color: #2e9d55; box-shadow: 0 0 0 3px rgba(46,157,85,.12); }
-    .row { display: grid; grid-template-columns: 220px 1fr 130px; gap: 14px; align-items: end; }
-    .captchaBox { height: 58px; display: flex; align-items: center; justify-content: center; border: 1px dashed #b5c6ba; border-radius: 12px; background: #fbfdfb; overflow: hidden; }
-    .captchaBox img { max-width: 100%; max-height: 100%; display: block; }
-    button { border: 0; border-radius: 12px; padding: 13px 18px; cursor: pointer; font-size: 16px; font-weight: 700; }
-    .primary { background: #2f9d4f; color: white; }
-    .primary:disabled { background: #9bcba7; cursor: not-allowed; }
-    .secondary { background: #607d8b; color: white; }
-    .actions { display: flex; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
-    .status { margin-top: 16px; padding: 12px 14px; border-radius: 12px; background: #eff7f0; color: #246437; white-space: pre-wrap; }
-    .error { background: #fff0f0; color: #bb1717; }
-    pre { margin: 12px 0 0; padding: 18px; border-radius: 14px; background: #101820; color: #e8f5ee; white-space: pre-wrap; overflow: auto; line-height: 1.7; }
-    .note { font-size: 14px; color: #60776a; margin-top: 8px; }
-    @media (max-width: 760px) { .row { grid-template-columns: 1fr; } }
+    body {
+      margin: 0;
+      font-family: "Microsoft JhengHei", Arial, sans-serif;
+      background: linear-gradient(135deg, #eef8ef, #f7fbf8);
+      color: #123;
+    }
+    .wrap {
+      max-width: 960px;
+      margin: 32px auto;
+      background: #fff;
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 16px 42px rgba(20, 80, 50, .12);
+    }
+    h1 { margin: 0 0 8px; color: #087a3a; font-size: 28px; }
+    .desc { color: #48635a; line-height: 1.7; margin-bottom: 22px; }
+    label { display: block; font-weight: 700; margin: 16px 0 8px; }
+    textarea {
+      width: 100%; min-height: 130px; border: 1px solid #bed8c6; border-radius: 12px;
+      padding: 14px; font-size: 16px; outline: none;
+    }
+    textarea:focus { border-color: #2ea957; box-shadow: 0 0 0 3px rgba(46,169,87,.13); }
+    .actions { margin: 18px 0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    button {
+      border: 0; border-radius: 12px; padding: 13px 24px; font-weight: 700; font-size: 16px;
+      color: white; background: #2ea957; cursor: pointer;
+    }
+    button.secondary { background: #607d8b; }
+    button:disabled { opacity: .55; cursor: wait; }
+    .hint { font-size: 14px; color: #5d7066; }
+    .error {
+      white-space: pre-wrap; color: #b00020; background: #fff1f1; border-radius: 12px;
+      padding: 14px; margin: 16px 0; display: none;
+    }
+    .result { margin-top: 22px; display: grid; gap: 16px; }
+    .card { border: 1px solid #d8e9de; border-radius: 14px; overflow: hidden; }
+    .cardHead { background: #f2faf4; padding: 14px 16px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .mail { font-weight: 800; color: #075f31; }
+    .badge { padding: 4px 10px; border-radius: 999px; background: #d9f4e2; color: #087a3a; font-size: 13px; }
+    .badge.empty { background: #f4e8d9; color: #8a5200; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 14px; border-top: 1px solid #edf2ef; text-align: left; vertical-align: top; }
+    th { background: #fbfdfb; color: #456; font-size: 14px; }
+    .empty { padding: 18px; color: #666; }
+    details { margin-top: 10px; color: #666; }
+    pre { overflow: auto; max-height: 240px; background: #111922; color: #d7f3df; border-radius: 10px; padding: 12px; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>中華郵政包裹查詢測試</h1>
-      <div class="sub">這版不破解圖形驗證碼，而是由後端開啟郵政查詢頁、擷取驗證碼圖片，使用者手動輸入後再送出查詢。</div>
-
-      <label for="tracking">郵件號碼</label>
-      <textarea id="tracking" placeholder="每行一筆，最多建議 5 筆"></textarea>
-
-      <div class="actions">
-        <button class="primary" id="startBtn">取得驗證碼</button>
-        <button class="secondary" id="refreshBtn" disabled>重新取得</button>
-      </div>
-
-      <label>圖形驗證碼</label>
-      <div class="row">
-        <div class="captchaBox" id="captchaBox">尚未取得</div>
-        <input id="captcha" placeholder="輸入驗證碼" autocomplete="off" />
-        <button class="primary" id="queryBtn" disabled>查詢</button>
-      </div>
-      <div class="note">若 Render 免費服務休眠，第一次取得驗證碼可能會等 30～60 秒。</div>
-
-      <div id="status" class="status">等待操作</div>
-
-      <label>查詢結果</label>
-      <pre id="result">尚無結果</pre>
+  <main class="wrap">
+    <h1>中華郵政包裹查詢測試</h1>
+    <div class="desc">
+      此版已完全移除 Playwright / Chromium，不需要圖形驗證碼。後端直接呼叫中華郵政郵件查詢介接端點，適合 Render 免費方案測試。
     </div>
-  </div>
 
-<script>
-let sessionId = null;
-const $ = (id) => document.getElementById(id);
+    <label for="mailNos">郵件號碼</label>
+    <textarea id="mailNos" placeholder="每行一筆，例如：&#10;02297230001516">02297230001516</textarea>
 
-function setStatus(msg, isError = false) {
-  const el = $('status');
-  el.textContent = msg;
-  el.className = isError ? 'status error' : 'status';
-}
-function setLoading(loading) {
-  $('startBtn').disabled = loading;
-  $('refreshBtn').disabled = loading || !sessionId;
-  $('queryBtn').disabled = loading || !sessionId;
-}
-function showCaptcha(src) {
-  $('captchaBox').innerHTML = `<img src="${src}" alt="captcha" />`;
-}
-async function postJSON(url, body) {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body || {})
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok || data.ok === false) throw new Error(data.message || '請求失敗');
-  return data;
-}
+    <div class="actions">
+      <button id="queryBtn">查詢</button>
+      <button class="secondary" id="clearBtn" type="button">清除結果</button>
+      <span class="hint">可輸入多筆，最多一次查 10 筆。</span>
+    </div>
 
-$('startBtn').addEventListener('click', async () => {
-  try {
-    setLoading(true);
-    setStatus('正在取得驗證碼，請稍候...');
-    $('result').textContent = '尚無結果';
-    const res = await fetch('/api/start');
-    const data = await res.json();
-    if (!res.ok || data.ok === false) throw new Error(data.message || '取得驗證碼失敗');
-    sessionId = data.sessionId;
-    showCaptcha(data.captchaImage);
-    $('captcha').value = '';
-    setStatus('驗證碼取得成功，請輸入後查詢。');
-  } catch (err) {
-    setStatus(err.message, true);
-    $('captchaBox').textContent = '取得失敗';
-  } finally {
-    setLoading(false);
-  }
-});
+    <div id="error" class="error"></div>
+    <section id="result" class="result"></section>
+  </main>
 
-$('refreshBtn').addEventListener('click', async () => {
-  try {
-    setLoading(true);
-    setStatus('正在重新取得驗證碼...');
-    const data = await postJSON('/api/refresh-captcha', { sessionId });
-    showCaptcha(data.captchaImage);
-    $('captcha').value = '';
-    setStatus('已重新取得驗證碼。');
-  } catch (err) {
-    setStatus(err.message, true);
-  } finally {
-    setLoading(false);
-  }
-});
+  <script>
+    const queryBtn = document.getElementById('queryBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const mailNos = document.getElementById('mailNos');
+    const result = document.getElementById('result');
+    const error = document.getElementById('error');
 
-$('queryBtn').addEventListener('click', async () => {
-  try {
-    setLoading(true);
-    setStatus('正在查詢郵件狀態...');
-    const trackingNumbers = $('tracking').value.split(/[\n,，\s]+/).map(v => v.trim()).filter(Boolean);
-    const captcha = $('captcha').value.trim();
-    const data = await postJSON('/api/query', { sessionId, trackingNumbers, captcha });
-    $('result').textContent = data.resultText || '查無內容';
-    setStatus('查詢完成。');
-    sessionId = null;
-  } catch (err) {
-    setStatus(err.message, true);
-  } finally {
-    setLoading(false);
-  }
-});
-</script>
+    clearBtn.addEventListener('click', () => {
+      result.innerHTML = '';
+      error.style.display = 'none';
+      error.textContent = '';
+    });
+
+    queryBtn.addEventListener('click', async () => {
+      error.style.display = 'none';
+      error.textContent = '';
+      result.innerHTML = '';
+      queryBtn.disabled = true;
+      queryBtn.textContent = '查詢中...';
+
+      try {
+        const res = await fetch('/api/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mailNos: mailNos.value })
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.message + (data.detail ? '\n' + data.detail : ''));
+        renderResults(data.results || []);
+      } catch (e) {
+        error.textContent = e.message || String(e);
+        error.style.display = 'block';
+      } finally {
+        queryBtn.disabled = false;
+        queryBtn.textContent = '查詢';
+      }
+    });
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+    }
+
+    function renderResults(items) {
+      if (!items.length) {
+        result.innerHTML = '<div class="empty">尚無結果</div>';
+        return;
+      }
+      result.innerHTML = items.map(item => {
+        const rows = (item.history || []).map(row => `
+          <tr>
+            <td>${escapeHtml(row.datetime)}</td>
+            <td>${escapeHtml(row.status)}</td>
+            <td>${escapeHtml(row.station)}</td>
+            <td>${escapeHtml(row.remark)}</td>
+          </tr>
+        `).join('');
+
+        return `
+          <article class="card">
+            <div class="cardHead">
+              <div class="mail">${escapeHtml(item.mailNo)}</div>
+              <div class="badge ${item.found ? '' : 'empty'}">${escapeHtml(item.message)}</div>
+            </div>
+            ${item.found ? `
+              <table>
+                <thead><tr><th>處理時間</th><th>狀態</th><th>處理局</th><th>備註</th></tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            ` : `<div class="empty">查無郵件處理歷程。</div>`}
+          </article>
+        `;
+      }).join('');
+    }
+  </script>
 </body>
 </html>
