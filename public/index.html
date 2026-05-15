@@ -3,108 +3,141 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>中華郵政包裹查詢測試頁</title>
+  <title>中華郵政包裹查詢測試</title>
   <style>
-    body { font-family: "Microsoft JhengHei", Arial, sans-serif; background:#f3f7f1; margin:0; padding:32px; color:#223; }
-    .card { max-width:860px; margin:auto; background:#fff; border-radius:18px; box-shadow:0 12px 32px rgba(0,0,0,.08); padding:28px; }
-    h1 { margin-top:0; color:#2e7d32; font-size:26px; }
-    .note { background:#eef8e9; border-left:5px solid #66bb6a; padding:12px 14px; border-radius:10px; line-height:1.7; }
-    label { display:block; font-weight:700; margin:18px 0 8px; }
-    textarea, input { width:100%; box-sizing:border-box; border:1px solid #cfd8dc; border-radius:10px; padding:12px; font-size:16px; }
-    textarea { height:150px; resize:vertical; }
-    .row { display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
-    .captcha { min-width:180px; min-height:60px; border:1px dashed #aaa; border-radius:10px; display:flex; align-items:center; justify-content:center; background:#fafafa; }
-    .captcha img { max-height:72px; max-width:260px; }
-    button { border:none; border-radius:10px; padding:12px 18px; color:#fff; background:#43a047; font-size:16px; cursor:pointer; margin-top:18px; }
-    button.secondary { background:#607d8b; }
-    button:disabled { opacity:.55; cursor:not-allowed; }
-    pre { white-space:pre-wrap; background:#101820; color:#e8f5e9; padding:18px; border-radius:12px; max-height:420px; overflow:auto; }
-    .status { margin-top:14px; color:#2e7d32; font-weight:700; }
-    .error { color:#c62828; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, 'Microsoft JhengHei', sans-serif; background: #f4f8f1; color: #173024; }
+    .wrap { max-width: 920px; margin: 28px auto; padding: 0 18px; }
+    .card { background: #fff; border-radius: 18px; padding: 26px; box-shadow: 0 12px 30px rgba(30, 80, 50, .12); }
+    h1 { margin: 0 0 8px; font-size: 28px; color: #24783a; }
+    .sub { color: #60776a; margin-bottom: 22px; line-height: 1.7; }
+    label { display: block; margin: 18px 0 8px; font-weight: 700; }
+    textarea, input { width: 100%; border: 1px solid #c8d8cc; border-radius: 12px; padding: 13px 14px; font-size: 16px; outline: none; }
+    textarea { min-height: 120px; resize: vertical; }
+    input:focus, textarea:focus { border-color: #2e9d55; box-shadow: 0 0 0 3px rgba(46,157,85,.12); }
+    .row { display: grid; grid-template-columns: 220px 1fr 130px; gap: 14px; align-items: end; }
+    .captchaBox { height: 58px; display: flex; align-items: center; justify-content: center; border: 1px dashed #b5c6ba; border-radius: 12px; background: #fbfdfb; overflow: hidden; }
+    .captchaBox img { max-width: 100%; max-height: 100%; display: block; }
+    button { border: 0; border-radius: 12px; padding: 13px 18px; cursor: pointer; font-size: 16px; font-weight: 700; }
+    .primary { background: #2f9d4f; color: white; }
+    .primary:disabled { background: #9bcba7; cursor: not-allowed; }
+    .secondary { background: #607d8b; color: white; }
+    .actions { display: flex; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
+    .status { margin-top: 16px; padding: 12px 14px; border-radius: 12px; background: #eff7f0; color: #246437; white-space: pre-wrap; }
+    .error { background: #fff0f0; color: #bb1717; }
+    pre { margin: 12px 0 0; padding: 18px; border-radius: 14px; background: #101820; color: #e8f5ee; white-space: pre-wrap; overflow: auto; line-height: 1.7; }
+    .note { font-size: 14px; color: #60776a; margin-top: 8px; }
+    @media (max-width: 760px) { .row { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>中華郵政包裹查詢測試頁</h1>
-    <div class="note">
-      這版是「半自動查詢」：系統會開啟郵局頁面並取得驗證碼圖片，但驗證碼仍由使用者手動輸入，不破解 Captcha。
+  <div class="wrap">
+    <div class="card">
+      <h1>中華郵政包裹查詢測試</h1>
+      <div class="sub">這版不破解圖形驗證碼，而是由後端開啟郵政查詢頁、擷取驗證碼圖片，使用者手動輸入後再送出查詢。</div>
+
+      <label for="tracking">郵件號碼</label>
+      <textarea id="tracking" placeholder="每行一筆，最多建議 5 筆"></textarea>
+
+      <div class="actions">
+        <button class="primary" id="startBtn">取得驗證碼</button>
+        <button class="secondary" id="refreshBtn" disabled>重新取得</button>
+      </div>
+
+      <label>圖形驗證碼</label>
+      <div class="row">
+        <div class="captchaBox" id="captchaBox">尚未取得</div>
+        <input id="captcha" placeholder="輸入驗證碼" autocomplete="off" />
+        <button class="primary" id="queryBtn" disabled>查詢</button>
+      </div>
+      <div class="note">若 Render 免費服務休眠，第一次取得驗證碼可能會等 30～60 秒。</div>
+
+      <div id="status" class="status">等待操作</div>
+
+      <label>查詢結果</label>
+      <pre id="result">尚無結果</pre>
     </div>
-
-    <label for="trackingNos">郵件號碼，每行一筆，最多 5 筆</label>
-    <textarea id="trackingNos" placeholder="例如：&#10;12345678901234&#10;98765432109876"></textarea>
-
-    <button id="loadCaptchaBtn" onclick="loadCaptcha()">取得驗證碼</button>
-
-    <label>圖形驗證碼</label>
-    <div class="row">
-      <div class="captcha" id="captchaBox">尚未取得驗證碼</div>
-      <input id="captchaInput" style="max-width:220px" placeholder="輸入驗證碼" />
-      <button class="secondary" onclick="loadCaptcha()">重新取得</button>
-    </div>
-
-    <button id="queryBtn" onclick="queryPost()" disabled>查詢</button>
-    <div id="status" class="status"></div>
-
-    <label>查詢結果</label>
-    <pre id="result">尚無結果</pre>
   </div>
 
 <script>
 let sessionId = null;
-
-async function loadCaptcha() {
-  setStatus('正在取得驗證碼...');
-  document.getElementById('queryBtn').disabled = true;
-  document.getElementById('captchaBox').innerHTML = '載入中...';
-  document.getElementById('captchaInput').value = '';
-
-  try {
-    const res = await fetch('/api/session');
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || '取得驗證碼失敗');
-    sessionId = data.sessionId;
-    document.getElementById('captchaBox').innerHTML = `<img src="${data.captchaImage}" alt="captcha" />`;
-    document.getElementById('queryBtn').disabled = false;
-    setStatus('請輸入驗證碼後按查詢。');
-  } catch (e) {
-    setStatus(e.message, true);
-    document.getElementById('captchaBox').innerHTML = '取得失敗';
-  }
-}
-
-async function queryPost() {
-  const trackingNos = document.getElementById('trackingNos').value.trim();
-  const captcha = document.getElementById('captchaInput').value.trim();
-  if (!trackingNos) return setStatus('請先輸入郵件號碼。', true);
-  if (!captcha) return setStatus('請輸入驗證碼。', true);
-
-  setStatus('查詢中...');
-  document.getElementById('queryBtn').disabled = true;
-  document.getElementById('result').textContent = '查詢中...';
-
-  try {
-    const res = await fetch('/api/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, trackingNos, captcha })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || '查詢失敗');
-    document.getElementById('result').textContent = data.rawText || '無回傳內容';
-    setStatus('查詢完成。若結果格式太雜，可再針對郵局回傳 HTML 做表格解析。');
-  } catch (e) {
-    document.getElementById('result').textContent = e.message;
-    setStatus(e.message, true);
-  } finally {
-    document.getElementById('queryBtn').disabled = false;
-  }
-}
+const $ = (id) => document.getElementById(id);
 
 function setStatus(msg, isError = false) {
-  const el = document.getElementById('status');
+  const el = $('status');
   el.textContent = msg;
   el.className = isError ? 'status error' : 'status';
 }
+function setLoading(loading) {
+  $('startBtn').disabled = loading;
+  $('refreshBtn').disabled = loading || !sessionId;
+  $('queryBtn').disabled = loading || !sessionId;
+}
+function showCaptcha(src) {
+  $('captchaBox').innerHTML = `<img src="${src}" alt="captcha" />`;
+}
+async function postJSON(url, body) {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body || {})
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data.ok === false) throw new Error(data.message || '請求失敗');
+  return data;
+}
+
+$('startBtn').addEventListener('click', async () => {
+  try {
+    setLoading(true);
+    setStatus('正在取得驗證碼，請稍候...');
+    $('result').textContent = '尚無結果';
+    const res = await fetch('/api/start');
+    const data = await res.json();
+    if (!res.ok || data.ok === false) throw new Error(data.message || '取得驗證碼失敗');
+    sessionId = data.sessionId;
+    showCaptcha(data.captchaImage);
+    $('captcha').value = '';
+    setStatus('驗證碼取得成功，請輸入後查詢。');
+  } catch (err) {
+    setStatus(err.message, true);
+    $('captchaBox').textContent = '取得失敗';
+  } finally {
+    setLoading(false);
+  }
+});
+
+$('refreshBtn').addEventListener('click', async () => {
+  try {
+    setLoading(true);
+    setStatus('正在重新取得驗證碼...');
+    const data = await postJSON('/api/refresh-captcha', { sessionId });
+    showCaptcha(data.captchaImage);
+    $('captcha').value = '';
+    setStatus('已重新取得驗證碼。');
+  } catch (err) {
+    setStatus(err.message, true);
+  } finally {
+    setLoading(false);
+  }
+});
+
+$('queryBtn').addEventListener('click', async () => {
+  try {
+    setLoading(true);
+    setStatus('正在查詢郵件狀態...');
+    const trackingNumbers = $('tracking').value.split(/[\n,，\s]+/).map(v => v.trim()).filter(Boolean);
+    const captcha = $('captcha').value.trim();
+    const data = await postJSON('/api/query', { sessionId, trackingNumbers, captcha });
+    $('result').textContent = data.resultText || '查無內容';
+    setStatus('查詢完成。');
+    sessionId = null;
+  } catch (err) {
+    setStatus(err.message, true);
+  } finally {
+    setLoading(false);
+  }
+});
 </script>
 </body>
 </html>

@@ -1,18 +1,17 @@
 {
-  "name": "post-tracking-demo",
+  "name": "post-tracking-demo-real",
   "version": "1.0.0",
-  "description": "中華郵政包裹查詢測試頁：前端 + Node.js 後端 + Playwright，Captcha 由使用者手動輸入。",
+  "description": "Chunghwa Post tracking helper with manual captcha input",
   "main": "server.js",
   "scripts": {
-    "dev": "node server.js",
     "start": "node server.js",
-    "install-browser": "cross-env PLAYWRIGHT_BROWSERS_PATH=0 playwright install chromium",
-    "postinstall": "cross-env PLAYWRIGHT_BROWSERS_PATH=0 playwright install chromium"
+    "dev": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.3",
-    "playwright": "^1.47.2",
-    "uuid": "^9.0.1",
-    "cross-env": "^7.0.3"
+    "playwright": "^1.48.2"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
